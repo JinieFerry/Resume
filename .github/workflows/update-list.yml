@@ -1,0 +1,30 @@
+name: Auto Update Contents  # 워크플로 이름
+
+on:
+  push:
+    branches: [ main ]  # main 브랜치에 푸시가 일어날 때마다 실행
+  workflow_dispatch:      # 필요한 경우 수동으로도 실행 가능하도록 설정
+
+jobs:
+  build:
+    runs-on: ubuntu-latest  # 가상 환경 리눅스 서버에서 실행
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3  # 저장소의 코드를 가상 서버로 가져옴
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Run Update Script
+        run: python update_contents.py  # 이전에 만든 파이썬 파일 실행
+
+      - name: Commit and Push changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add contents.html
+          git commit -m "chore: contents.html 자동 업데이트" || echo "변경 사항 없음"
+          git push
